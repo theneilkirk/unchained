@@ -86,7 +86,9 @@ async function search() {
       north: lb.getNorth(),
       east:  lb.getEast(),
     };
-    state.allResults = await fetchNearby(bounds);
+    state.allResults = await fetchNearby(bounds, (found, total) => {
+      showLoading(`Finding independents… ${found} / ${total}`);
+    });
     applyFilter();
   } catch (err) {
     console.error(err);
@@ -335,6 +337,16 @@ const STATS = [
   "50p in every £1 spent at an independent stays in the local area. At a chain: under 5p.",
   "High streets with more independents have lower vacancy rates, higher footfall, and stronger communities.",
   "Franchises are designed to extract money out of your town and into a boardroom.",
+  "Tesco made £2.3 billion profit last year. Your local greengrocer made enough to keep the lights on and hire someone's kid for Saturdays.",
+  "Every minute, British consumers spend £1.4 million at supermarket chains. Your local deli took £47 this morning and called it a good start.",
+  "Amazon UK employs 75,000 people and paid less corporation tax last year than a single Canterbury accountant.",
+  "A McDonald's franchisee sends 8% of every sale back to corporate America. Your local burger joint sends it to their kids' school fund.",
+  "If every UK household redirected just one coffee a week to an independent, it would inject £2 billion back into local economies annually. That's one flat white.",
+  "The average chain store employs 1 local person per £1m in revenue. The average independent: 6.",
+  "Corporations don't build communities. They extract from them. Then they sponsor the community festival.",
+  "'Shopping local' isn't a lifestyle choice. It's the difference between a living high street and another empty shopfront.",
+  "Every chain that opens on a high street is a landlord that never shows up, a neighbour that never waves, a business that was never really yours.",
+  "They call it investment. You call it your town centre. Funny how those two things keep not matching up.",
 ];
 
 // Fisher-Yates shuffle

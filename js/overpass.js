@@ -174,6 +174,7 @@ function normalise(element) {
 
   if (!name) return null;
   if (isChain(name)) return null;
+  if (tags.brand) return null;
 
   // Coordinates — nodes have lat/lon directly; ways expose center
   const lat = element.lat ?? element.center?.lat;
@@ -244,9 +245,10 @@ function hasCached(bounds) {
  * Results are cached in localStorage for 24 hours.
  * Tries each endpoint in order, falling back on error.
  * @param {{south: number, west: number, north: number, east: number}} bounds
+ * @param {((found: number, total: number) => void) | null} onProgress  optional live-progress callback
  * @returns {Promise<Object[]>}
  */
-async function fetchNearby(bounds) {
+async function fetchNearby(bounds, onProgress = null) {
   const key = _cacheKey(bounds);
   const cached = _cacheGet(key);
   if (cached) return cached;
@@ -266,15 +268,29 @@ async function fetchNearby(bounds) {
 
       const data = await response.json();
 
-      // Normalise, deduplicate by id
+      // Normalise, deduplicate by id — yield to the event loop every ~16 ms
+      // so the browser can update the loading text between batches.
       const seen = new Set();
       const results = [];
-      for (const el of data.elements) {
-        if (seen.has(el.id)) continue;
-        seen.add(el.id);
-        const biz = normalise(el);
-        if (biz) results.push(biz);
+      const total = data.elements.length;
+      let lastYield = performance.now();
+
+      for (let i = 0; i < total; i++) {
+        const el = data.elements[i];
+        if (!seen.has(el.id)) {
+          seen.add(el.id);
+          const biz = normalise(el);
+          if (biz) results.push(biz);
+        }
+
+        if (onProgress && performance.now() - lastYield > 16) {
+          onProgress(results.length, total);
+          await new Promise(r => setTimeout(r, 0));
+          lastYield = performance.now();
+        }
       }
+
+      if (onProgress) onProgress(results.length, total);
 
       results.sort((a, b) => a.name.localeCompare(b.name));
       _cacheSet(key, results);

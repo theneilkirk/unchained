@@ -532,6 +532,22 @@ body {
 
 #stat-dismiss:hover { color: var(--accent); }
 
+@media (min-width: 641px) {
+  #stat-ticker {
+    padding: 12px 18px 12px 22px;
+    border-radius: 28px;
+    gap: 12px;
+  }
+
+  #stat-text {
+    font-size: 14px;
+  }
+
+  #stat-dismiss {
+    font-size: 18px;
+  }
+}
+
 /* ─── ABOUT OVERLAY ─────────────────────────────────── */
 #about-overlay {
   display: none;
