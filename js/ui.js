@@ -300,13 +300,19 @@ if (filterToggleBtn) {
   });
 }
 
+// ── Clear cache ───────────────────────────────────────────────────────────────
+document.getElementById("clear-cache-link")?.addEventListener("click", e => {
+  e.preventDefault();
+  clearCache();
+  showToast("Cache cleared — next search will fetch fresh data.");
+});
+
 // ── About overlay ─────────────────────────────────────────────────────────────
-const aboutLink    = document.getElementById("about-link");
+const aboutBtn     = document.getElementById("about-btn");
 const aboutOverlay = document.getElementById("about-overlay");
 const aboutClose   = document.getElementById("about-close");
 
-function openAbout(e) {
-  e.preventDefault();
+function openAbout() {
   aboutOverlay.classList.add("open");
   aboutClose.focus();
 }
@@ -315,7 +321,7 @@ function closeAbout() {
   aboutOverlay.classList.remove("open");
 }
 
-aboutLink?.addEventListener("click", openAbout);
+aboutBtn?.addEventListener("click", openAbout);
 aboutClose?.addEventListener("click", closeAbout);
 
 // Close on backdrop click (but not inner panel click)

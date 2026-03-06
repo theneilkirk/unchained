@@ -76,6 +76,9 @@ body {
 
 /* ─── HEADER / LOGO ────────────────────────────────── */
 #sidebar-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
   padding: 24px 20px 16px;
   border-bottom: 1px solid var(--border);
 }
@@ -366,6 +369,36 @@ body {
 
 .popup-detail a { color: var(--accent); }
 
+.popup-osm {
+  margin-top: 10px;
+  border-top: 1px solid var(--border);
+  padding-top: 8px;
+}
+
+.popup-osm summary {
+  font-size: 11px;
+  color: var(--text-dim);
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+
+.popup-osm summary::-webkit-details-marker { display: none; }
+
+.popup-osm[open] summary { color: var(--text); }
+
+.popup-osm p {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin: 6px 0;
+  line-height: 1.5;
+}
+
+.popup-osm a {
+  font-size: 11px;
+  color: var(--accent);
+}
+
 
 /* Attribution */
 .leaflet-control-attribution {
@@ -646,9 +679,31 @@ body {
 /* ─── SIDEBAR HANDLE (hidden on desktop) ───────────── */
 #sidebar-handle { display: none; }
 
-/* ─── HEADER CONTROLS (hidden on desktop) ──────────── */
-#header-controls { display: none; }
-#filter-dot      { display: none; }
+/* ─── HEADER CONTROLS ───────────────────────────────── */
+#header-controls { display: flex; gap: 6px; align-items: center; }
+#search-toggle-btn,
+#filter-toggle-btn { display: none; }
+#filter-dot        { display: none; }
+
+#about-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+#about-btn svg {
+  width: 16px;
+  height: 16px;
+  stroke: var(--text-dim);
+  transition: stroke 0.15s;
+}
+#about-btn:hover svg { stroke: var(--text); }
 
 /* ─── MOBILE ───────────────────────────────────────── */
 @media (max-width: 640px) {
@@ -690,6 +745,10 @@ body {
   }
 
   #search-toggle-btn,
+  #filter-toggle-btn { display: flex; }
+
+  #about-btn,
+  #search-toggle-btn,
   #filter-toggle-btn {
     background: var(--surface2);
     border: 1px solid var(--border);
@@ -704,6 +763,7 @@ body {
     transition: border-color 0.15s, background 0.15s;
   }
 
+  #about-btn svg,
   #search-toggle-btn svg,
   #filter-toggle-btn svg {
     width: 16px;

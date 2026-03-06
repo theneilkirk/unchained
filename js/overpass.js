@@ -183,6 +183,7 @@ function normalise(element) {
 
   return {
     id:       element.id,
+    osmType:  element.type,
     name,
     lat,
     lon,
@@ -237,6 +238,12 @@ function _cacheSet(key, results) {
 
 function hasCached(bounds) {
   return _cacheGet(_cacheKey(bounds)) !== null;
+}
+
+function clearCache() {
+  for (const k of Object.keys(localStorage)) {
+    if (k.startsWith("uc:") && k !== "uc:about-seen") localStorage.removeItem(k);
+  }
 }
 
 /**

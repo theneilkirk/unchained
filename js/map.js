@@ -59,6 +59,17 @@ function buildPopup(biz) {
   }
 
   html += `</div>`;
+
+  const osmUrl = biz.osmType
+    ? `https://www.openstreetmap.org/${biz.osmType}/${biz.id}`
+    : `https://www.openstreetmap.org/#map=19/${biz.lat}/${biz.lon}`;
+  html += `
+    <details class="popup-osm">
+      <summary>Data not up to date?</summary>
+      <p>Unchained runs on OpenStreetMap — free, community-maintained map data. It's occasionally out of date. Business owners (or anyone) can update the listing directly; changes appear here within 24 hours.</p>
+      <a href="${escHtml(osmUrl)}" target="_blank" rel="noopener">Edit this place on OpenStreetMap →</a>
+    </details>`;
+
   return html;
 }
 
