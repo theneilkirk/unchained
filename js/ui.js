@@ -26,6 +26,10 @@ const resultsList    = document.getElementById("results-list");
 const searchAreaBtn  = document.getElementById("search-area-btn");
 const loadingOverlay = document.getElementById("loading-overlay");
 const toast          = document.getElementById("toast");
+const sidebar        = document.getElementById("sidebar");
+const searchToggleBtn = document.getElementById("search-toggle-btn");
+const filterToggleBtn = document.getElementById("filter-toggle-btn");
+const filterDot       = document.getElementById("filter-dot");
 
 // ── Utility ───────────────────────────────────────────────────────────────────
 function showLoading(msg = "Finding independents…") {
@@ -136,6 +140,7 @@ function renderResults(businesses) {
       // Deactivate previous
       document.querySelectorAll(".result-item.active").forEach(el => el.classList.remove("active"));
       li.classList.add("active");
+      suppressMoveSearch = true; // panTo will fire moveend — don't let it re-render and kill the popup
       setActiveMarker(biz.id);
     });
 
@@ -229,6 +234,7 @@ chips.forEach(chip => {
     chip.classList.add("active");
     state.category = chip.dataset.category;
     applyFilter();
+    filterDot?.classList.toggle("visible", state.category !== "all");
   });
 });
 
@@ -265,6 +271,32 @@ searchAreaBtn.addEventListener("click", () => {
   state.lon = centre.lng;
   search();
 });
+
+// ── Mobile sidebar collapse toggle ────────────────────────────────────────────
+const sidebarHandle = document.getElementById("sidebar-handle");
+if (sidebarHandle) {
+  sidebarHandle.addEventListener("click", () => {
+    sidebar.classList.toggle("collapsed");
+  });
+}
+
+// ── Mobile search / filter panel toggles ──────────────────────────────────────
+if (searchToggleBtn) {
+  searchToggleBtn.addEventListener("click", () => {
+    const opening = !sidebar.classList.contains("search-open");
+    sidebar.classList.remove("filter-open");
+    sidebar.classList.toggle("search-open", opening);
+    if (opening) locationInput.focus();
+  });
+}
+
+if (filterToggleBtn) {
+  filterToggleBtn.addEventListener("click", () => {
+    const opening = !sidebar.classList.contains("filter-open");
+    sidebar.classList.remove("search-open");
+    sidebar.classList.toggle("filter-open", opening);
+  });
+}
 
 // ── Boot ──────────────────────────────────────────────────────────────────────
 // Try to geolocate automatically on load

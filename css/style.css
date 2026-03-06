@@ -484,6 +484,13 @@ body {
   to   { opacity: 1; transform: translate(-50%, 0); }
 }
 
+/* ─── SIDEBAR HANDLE (hidden on desktop) ───────────── */
+#sidebar-handle { display: none; }
+
+/* ─── HEADER CONTROLS (hidden on desktop) ──────────── */
+#header-controls { display: none; }
+#filter-dot      { display: none; }
+
 /* ─── MOBILE ───────────────────────────────────────── */
 @media (max-width: 640px) {
   body { flex-direction: column; }
@@ -491,10 +498,118 @@ body {
   #sidebar {
     width: 100%;
     height: auto;
-    max-height: 45vh;
+    max-height: 45dvh;
     border-right: none;
     border-bottom: 1px solid var(--border);
+    transition: max-height 0.25s ease;
   }
 
-  #map { height: 55vh; }
+  #sidebar.collapsed {
+    max-height: 52px;
+    overflow: hidden;
+  }
+
+  #sidebar.collapsed ~ #map { height: calc(100dvh - 52px); }
+
+  #map { height: 55dvh; }
+
+  /* Compact header — flex row: logo left, buttons right */
+  #sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+  }
+  .logo-main { font-size: 28px; }
+  .logo-sub { font-size: 10px; }
+
+  /* Header icon buttons */
+  #header-controls {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  #search-toggle-btn,
+  #filter-toggle-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    transition: border-color 0.15s, background 0.15s;
+  }
+
+  #search-toggle-btn svg,
+  #filter-toggle-btn svg {
+    width: 16px;
+    height: 16px;
+    stroke: var(--text-dim);
+    transition: stroke 0.15s;
+  }
+
+  #sidebar.search-open #search-toggle-btn,
+  #sidebar.filter-open #filter-toggle-btn {
+    border-color: var(--accent);
+    background: rgba(232,245,66,0.1);
+  }
+
+  #sidebar.search-open #search-toggle-btn svg,
+  #sidebar.filter-open #filter-toggle-btn svg {
+    stroke: var(--accent);
+  }
+
+  /* Filter active dot */
+  #filter-dot {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+  #filter-dot.visible { display: block; }
+
+  /* Hide search + filters by default */
+  #search-bar { display: none; }
+  #filters    { display: none; }
+
+  /* Reveal when toggled */
+  #sidebar.search-open #search-bar { display: flex; }
+  #sidebar.filter-open #filters    { display: block; }
+
+  /* Horizontal-scroll chips — no wrapping */
+  #filter-chips {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  #filter-chips::-webkit-scrollbar { display: none; }
+
+  /* Hide attribution — already in Leaflet corner */
+  #sidebar-footer { display: none; }
+
+  /* Drag handle */
+  #sidebar-handle {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 8px 0 4px;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  #sidebar-handle::before {
+    content: '';
+    width: 36px;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--border);
+  }
 }
