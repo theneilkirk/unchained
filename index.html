@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Unchained — Find Independent Businesses Near You</title>
+  <meta name="description" content="Discover independent local businesses. No chains, no franchises — just the real local economy." />
+
+  <!-- Leaflet -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- Fonts: Bebas Neue (display) + DM Sans (body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- SIDEBAR -->
+  <aside id="sidebar">
+    <div id="sidebar-header">
+      <div id="logo">
+        <span class="logo-main">UNCHAINED</span>
+        <span class="logo-sub">Independent businesses near you</span>
+      </div>
+    </div>
+
+    <div id="search-bar">
+      <input type="text" id="location-input" placeholder="Search a place…" autocomplete="off" />
+      <button id="locate-btn" title="Use my location">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="8" opacity=".3"/></svg>
+      </button>
+    </div>
+
+    <div id="filters">
+      <p class="filter-label">SHOW ME</p>
+      <div id="filter-chips">
+        <button class="chip active" data-category="all">All</button>
+        <button class="chip" data-category="food">Food & Drink</button>
+        <button class="chip" data-category="retail">Retail</button>
+        <button class="chip" data-category="services">Services</button>
+        <button class="chip" data-category="health">Health</button>
+        <button class="chip" data-category="arts">Arts & Culture</button>
+      </div>
+    </div>
+
+    <div id="results-area">
+      <div id="results-header">
+        <span id="results-count">—</span>
+        <span id="results-label"> independent businesses found</span>
+      </div>
+      <ul id="results-list"></ul>
+    </div>
+
+    <div id="sidebar-footer">
+      <p>Powered by <a href="https://www.openstreetmap.org" target="_blank" rel="noopener">OpenStreetMap</a> · <a href="https://overpass-api.de" target="_blank" rel="noopener">Overpass API</a></p>
+      <p>No tracking. No cookies. No chains.</p>
+    </div>
+  </aside>
+
+  <!-- MAP -->
+  <main id="map">
+    <button id="search-area-btn" class="hidden">Search this area</button>
+  </main>
+
+  <!-- LOADING OVERLAY -->
+  <div id="loading-overlay" class="hidden">
+    <div id="loading-inner">
+      <div id="loading-spinner"></div>
+      <p id="loading-text">Finding independents…</p>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div id="toast" class="hidden"></div>
+
+  <script src="js/chains.js"></script>
+  <script src="js/overpass.js"></script>
+  <script src="js/map.js"></script>
+  <script src="js/ui.js"></script>
+</body>
+</html>
