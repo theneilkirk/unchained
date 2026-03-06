@@ -9,14 +9,24 @@ const map = L.map("map", {
   zoomControl: true,
 });
 
-// Dark OSM tile via Stadia Maps (no API key needed for low volume)
-L.tileLayer("https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png", {
-  attribution:
-    '&copy; <a href="https://www.stadiamaps.com/" target="_blank">Stadia Maps</a> ' +
-    '&copy; <a href="https://openmaptiles.org/" target="_blank">OpenMapTiles</a> ' +
-    '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>',
-  maxZoom: 20,
-}).addTo(map);
+// ── Basemap tile layers ───────────────────────────────────────────────────────
+const cartoAttr =
+  '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors ' +
+  '&copy; <a href="https://carto.com/attributions" target="_blank">CARTO</a>';
+
+const stadiaAttr =
+  '&copy; <a href="https://www.stadiamaps.com/" target="_blank">Stadia Maps</a> ' +
+  '&copy; <a href="https://openmaptiles.org/" target="_blank">OpenMapTiles</a> ' +
+  '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>';
+
+const basemaps = {
+  "Carto Dark":         L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",                    { attribution: cartoAttr,  subdomains: "abcd", maxZoom: 20 }),
+  "Carto Voyager Dark": L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager_dark_all/{z}/{x}/{y}{r}.png", { attribution: cartoAttr,  subdomains: "abcd", maxZoom: 20 }),
+  "Stadia Smooth Dark": L.tileLayer("https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png",        { attribution: stadiaAttr,                     maxZoom: 20 }),
+};
+
+basemaps["Stadia Smooth Dark"].addTo(map);
+L.control.layers(basemaps, null, { position: "topright", collapsed: true }).addTo(map);
 
 // ── State ────────────────────────────────────────────────────────────────────
 let markers      = [];

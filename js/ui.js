@@ -15,6 +15,8 @@ const state = {
 // Prevents moveend from triggering a search during programmatic flyTo calls
 let suppressMoveSearch = false;
 
+const MIN_SEARCH_ZOOM = 12;
+
 // ── DOM refs ──────────────────────────────────────────────────────────────────
 const locationInput  = document.getElementById("location-input");
 const locateBtn      = document.getElementById("locate-btn");
@@ -60,6 +62,10 @@ function formatDistance(m) {
 
 // ── Fetch & render cycle ──────────────────────────────────────────────────────
 async function search() {
+  if (map.getZoom() < MIN_SEARCH_ZOOM) {
+    showToast("Zoom in more to search for businesses.");
+    return;
+  }
   searchAreaBtn.classList.add("hidden");
   showLoading();
 
@@ -231,14 +237,25 @@ map.on("click", () => {
   locationInput.value = "";
 });
 
-// Map pan/zoom — reveal the "Search this area" button rather than auto-searching
+// Map pan/zoom — auto-search if cached, otherwise reveal "Search this area" button
 map.on("moveend", () => {
   if (suppressMoveSearch) {
     suppressMoveSearch = false;
     return;
   }
   if (!state.lat) return;   // app not yet initialised
-  searchAreaBtn.classList.remove("hidden");
+  if (map.getZoom() < MIN_SEARCH_ZOOM) {
+    searchAreaBtn.classList.add("hidden");
+    return;
+  }
+
+  const lb = map.getBounds();
+  const bounds = { south: lb.getSouth(), west: lb.getWest(), north: lb.getNorth(), east: lb.getEast() };
+  if (hasCached(bounds)) {
+    search();
+  } else {
+    searchAreaBtn.classList.remove("hidden");
+  }
 });
 
 // "Search this area" button — search around current map centre on demand

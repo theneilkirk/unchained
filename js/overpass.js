@@ -199,14 +199,58 @@ function normalise(element) {
   };
 }
 
+// ── Result cache (localStorage, 24 h TTL) ────────────────────────────────────
+const CACHE_TTL = 86_400_000;
+const snap = v => Math.round(v / 0.02) * 0.02;
+
+function _cacheKey({ south, west, north, east }) {
+  return `uc:${snap(south)},${snap(west)},${snap(north)},${snap(east)}`;
+}
+
+function _cacheGet(key) {
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return null;
+    const { ts, results } = JSON.parse(raw);
+    if (Date.now() - ts > CACHE_TTL) { localStorage.removeItem(key); return null; }
+    return results;
+  } catch { return null; }
+}
+
+function _cacheSet(key, results) {
+  // Defer to idle time so the UI re-renders before the expensive stringify+write
+  const write = () => {
+    for (const k of Object.keys(localStorage)) {
+      if (!k.startsWith("uc:")) continue;
+      try {
+        const { ts } = JSON.parse(localStorage.getItem(k));
+        if (Date.now() - ts > CACHE_TTL) localStorage.removeItem(k);
+      } catch { localStorage.removeItem(k); }
+    }
+    try {
+      localStorage.setItem(key, JSON.stringify({ ts: Date.now(), results }));
+    } catch { /* storage full or unavailable */ }
+  };
+  (typeof requestIdleCallback !== "undefined" ? requestIdleCallback : f => setTimeout(f, 0))(write);
+}
+
+function hasCached(bounds) {
+  return _cacheGet(_cacheKey(bounds)) !== null;
+}
+
 /**
  * Fetch independents within the given map bounds from Overpass.
  * Always fetches all categories — callers filter client-side.
+ * Results are cached in localStorage for 24 hours.
  * Tries each endpoint in order, falling back on error.
  * @param {{south: number, west: number, north: number, east: number}} bounds
  * @returns {Promise<Object[]>}
  */
 async function fetchNearby(bounds) {
+  const key = _cacheKey(bounds);
+  const cached = _cacheGet(key);
+  if (cached) return cached;
+
   const query = buildQuery(bounds, "all");
   const body  = "data=" + encodeURIComponent(query);
 
@@ -233,6 +277,7 @@ async function fetchNearby(bounds) {
       }
 
       results.sort((a, b) => a.name.localeCompare(b.name));
+      _cacheSet(key, results);
       return results;
     } catch (err) {
       lastErr = err;

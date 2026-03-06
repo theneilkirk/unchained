@@ -56,7 +56,7 @@ Edit `js/chains.js`. The `CHAINS` set is case-insensitive and does substring mat
 
 ## Credits
 
-- Map tiles: [Stadia Maps](https://www.stadiamaps.com/) (Alidade Smooth Dark)
+- Map tiles: [CARTO](https://carto.com/attributions) (Dark All)
 - Map library: [Leaflet](https://leafletjs.com/)
 - Data: [OpenStreetMap contributors](https://www.openstreetmap.org/copyright)
 - Query: [Overpass API](https://overpass-api.de)
