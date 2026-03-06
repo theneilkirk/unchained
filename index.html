@@ -66,13 +66,17 @@
 
     <div id="sidebar-footer">
       <p>Powered by <a href="https://www.openstreetmap.org" target="_blank" rel="noopener">OpenStreetMap</a> · <a href="https://overpass-api.de" target="_blank" rel="noopener">Overpass API</a></p>
-      <p>No tracking. No cookies. No chains.</p>
+      <p>No tracking. No cookies. No chains. · <a href="#" id="about-link">About</a></p>
     </div>
   </aside>
 
   <!-- MAP -->
   <main id="map">
     <button id="search-area-btn" class="hidden">Search this area</button>
+    <div id="stat-ticker" aria-live="polite">
+      <span id="stat-text"></span>
+      <button id="stat-dismiss" aria-label="Dismiss stat">×</button>
+    </div>
   </main>
 
   <!-- LOADING OVERLAY -->
@@ -85,6 +89,23 @@
 
   <!-- TOAST -->
   <div id="toast" class="hidden"></div>
+
+  <!-- ABOUT OVERLAY -->
+  <div id="about-overlay" role="dialog" aria-modal="true" aria-label="About Unchained">
+    <div id="about-inner">
+      <button id="about-close" aria-label="Close">×</button>
+      <h1 class="about-headline">Chains take.<br>Independents give back.</h1>
+
+      <h2 class="about-section-title">Why Unchained?</h2>
+      <p>Every time you spend money, you're voting.</p>
+      <p>Not with a ballot — with your wallet. And most of us, most of the time, are voting for shareholders we'll never meet, in places we'll never go, for profits that will never come back.</p>
+      <p>Chains are extraction machines. They're engineered to move money up and out — out of your high street, out of your town, out of the local economy. The staff are often paid as little as legally possible. The owners are rarely local. The profits go elsewhere.</p>
+      <p>Independents are the opposite. When you buy a coffee from the place on the corner, that money pays a local wage, funds a local supplier, covers a local lease. It stays in circulation. It builds something.</p>
+      <p>The data backs this up: every £1 spent at an independent recirculates up to three times more in the local economy than the same pound spent at a chain.</p>
+      <p>Thanks for being one of the people who actually give a damn about the place they live.</p>
+      <p class="about-closing">Unchained exists to make the choice easy. No account. No tracking. No agenda beyond this: <strong>spend where it matters.</strong></p>
+    </div>
+  </div>
 
   <script src="js/chains.js"></script>
   <script src="js/overpass.js"></script>

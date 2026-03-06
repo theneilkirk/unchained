@@ -298,9 +298,106 @@ if (filterToggleBtn) {
   });
 }
 
+// ── About overlay ─────────────────────────────────────────────────────────────
+const aboutLink    = document.getElementById("about-link");
+const aboutOverlay = document.getElementById("about-overlay");
+const aboutClose   = document.getElementById("about-close");
+
+function openAbout(e) {
+  e.preventDefault();
+  aboutOverlay.classList.add("open");
+  aboutClose.focus();
+}
+
+function closeAbout() {
+  aboutOverlay.classList.remove("open");
+}
+
+aboutLink?.addEventListener("click", openAbout);
+aboutClose?.addEventListener("click", closeAbout);
+
+// Close on backdrop click (but not inner panel click)
+aboutOverlay?.addEventListener("click", e => {
+  if (e.target === aboutOverlay) closeAbout();
+});
+
+// Close on Escape
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape" && aboutOverlay.classList.contains("open")) closeAbout();
+});
+
+// ── Stat ticker ───────────────────────────────────────────────────────────────
+const STATS = [
+  "Every £1 spent locally recirculates up to 3× more in the local economy than £1 spent at a chain.",
+  "The UK's top 4 supermarkets made £3.2bn in profit last year. Your corner shop made enough to pay the rent.",
+  "Amazon paid £18m in UK tax in 2023. On £23bn in sales.",
+  "When a chain opens, an average of 1.4 independent businesses close within 12 months.",
+  "50p in every £1 spent at an independent stays in the local area. At a chain: under 5p.",
+  "High streets with more independents have lower vacancy rates, higher footfall, and stronger communities.",
+  "Franchises are designed to extract money out of your town and into a boardroom.",
+];
+
+// Fisher-Yates shuffle
+function shuffleArray(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+(function initStatTicker() {
+  const ticker   = document.getElementById("stat-ticker");
+  const statText = document.getElementById("stat-text");
+  const dismiss  = document.getElementById("stat-dismiss");
+
+  if (!ticker || !statText || !dismiss) return;
+
+  let stats      = shuffleArray(STATS);
+  let statIndex  = 0;
+  let showTimer, hideTimer, nextTimer;
+  let dismissed  = false;
+
+  function showNextStat() {
+    if (dismissed) return;
+
+    statText.textContent = stats[statIndex];
+    statIndex = (statIndex + 1) % stats.length;
+    if (statIndex === 0) stats = shuffleArray(STATS); // re-shuffle each cycle
+
+    ticker.classList.add("visible");
+
+    hideTimer = setTimeout(() => {
+      ticker.classList.remove("visible");
+      nextTimer = setTimeout(showNextStat, 15500); // 0.5s fade + 15s gap
+    }, 7000);
+  }
+
+  dismiss.addEventListener("click", () => {
+    dismissed = true;
+    clearTimeout(showTimer);
+    clearTimeout(hideTimer);
+    clearTimeout(nextTimer);
+    ticker.classList.remove("visible");
+    setTimeout(() => { ticker.style.display = "none"; }, 500);
+  });
+
+  // First stat appears 5s after page load
+  showTimer = setTimeout(showNextStat, 5000);
+})();
+
 // ── Boot ──────────────────────────────────────────────────────────────────────
 // Try to geolocate automatically on load
 window.addEventListener("load", () => {
   // Short delay to let map render first
   setTimeout(geolocate, 400);
+
+  // Show About overlay once, 15s after first visit
+  if (!localStorage.getItem("uc:about-seen")) {
+    setTimeout(() => {
+      aboutOverlay.classList.add("open");
+      localStorage.setItem("uc:about-seen", "1");
+    }, 15000);
+  }
 });
