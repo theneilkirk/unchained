@@ -110,6 +110,7 @@ function setActiveMarker(bizId) {
     const isActive = biz.id === bizId;
     marker.setIcon(makeIcon(isActive));
     if (isActive) {
+      suppressMoveSearchUntil = Date.now() + 1000; // panTo fires moveend (sometimes twice on mobile)
       marker.openPopup();
       map.panTo(marker.getLatLng(), { animate: true });
     }

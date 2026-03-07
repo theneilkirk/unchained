@@ -12,8 +12,9 @@ const state = {
   results:    [],     // currently displayed (filtered) results
 };
 
-// Prevents moveend from triggering a search during programmatic flyTo calls
-let suppressMoveSearch = false;
+// Prevents moveend from triggering a search during programmatic pan/fly calls.
+// Stores a timestamp — all moveend events before that time are ignored.
+var suppressMoveSearchUntil = 0;
 
 const MIN_SEARCH_ZOOM = 12;
 
@@ -142,7 +143,7 @@ function renderResults(businesses) {
       // Deactivate previous
       document.querySelectorAll(".result-item.active").forEach(el => el.classList.remove("active"));
       li.classList.add("active");
-      suppressMoveSearch = true; // panTo will fire moveend — don't let it re-render and kill the popup
+      suppressMoveSearchUntil = Date.now() + 1000; // panTo fires moveend (sometimes twice on mobile)
       setActiveMarker(biz.id);
     });
 
@@ -172,7 +173,7 @@ function geolocate() {
     pos => {
       state.lat = pos.coords.latitude;
       state.lon = pos.coords.longitude;
-      suppressMoveSearch = true;
+      suppressMoveSearchUntil = Date.now() + 1500; // flyTo animation is 1.2 s
       flyTo(state.lat, state.lon);
       map.once('moveend', search);
     },
@@ -207,7 +208,7 @@ async function searchPlace(query) {
     state.lat = parseFloat(place.lat);
     state.lon = parseFloat(place.lon);
     locationInput.value = place.display_name.split(",").slice(0, 2).join(", ");
-    suppressMoveSearch = true;
+    suppressMoveSearchUntil = Date.now() + 1500; // flyTo animation is 1.2 s
     flyTo(state.lat, state.lon);
     map.once('moveend', search);
   } catch (err) {
@@ -247,10 +248,7 @@ map.on("click", () => {
 
 // Map pan/zoom — auto-search if cached, otherwise reveal "Search this area" button
 map.on("moveend", () => {
-  if (suppressMoveSearch) {
-    suppressMoveSearch = false;
-    return;
-  }
+  if (Date.now() < suppressMoveSearchUntil) return;
   if (!state.lat) return;   // app not yet initialised
   if (map.getZoom() < MIN_SEARCH_ZOOM) {
     searchAreaBtn.classList.add("hidden");
