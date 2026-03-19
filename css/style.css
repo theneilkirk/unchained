@@ -206,11 +206,20 @@ body {
   flex: 1;
   overflow-y: auto;
   padding: 0 0 8px;
+  /* Hide scrollbar by default; reveal on hover */
+  scrollbar-width: none; /* Firefox */
 }
 
+#results-area:hover {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent; /* Firefox hover */
+}
+
+/* Chrome / Safari */
 #results-area::-webkit-scrollbar { width: 4px; }
 #results-area::-webkit-scrollbar-track { background: transparent; }
-#results-area::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+#results-area::-webkit-scrollbar-thumb { background: transparent; border-radius: 2px; transition: background 0.2s; }
+#results-area:hover::-webkit-scrollbar-thumb { background: var(--border); }
 
 #results-header {
   padding: 12px 20px 8px;
@@ -290,6 +299,9 @@ body {
   color: var(--text-dim);
   font-size: 13px;
   line-height: 1.6;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .results-empty strong {
@@ -298,8 +310,18 @@ body {
   font-size: 28px;
   color: var(--text);
   letter-spacing: 1px;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
 }
+
+.results-empty-cta {
+  display: block;
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--text-dim);
+  line-height: 1.6;
+}
+
+.results-empty-cta a { color: var(--accent); }
 
 /* ─── FOOTER ───────────────────────────────────────── */
 #sidebar-footer {
@@ -308,6 +330,14 @@ body {
   font-size: 10px;
   color: var(--text-dim);
   line-height: 1.7;
+}
+
+/* Muted clear-cache link — still clickable for those who know it's there */
+#clear-cache-link,
+#clear-cache-link:hover {
+  opacity: 0.25;
+  color: var(--text-dim);
+  text-decoration: none;
 }
 
 /* ─── MAP CUSTOMISATION ────────────────────────────── */
@@ -369,34 +399,69 @@ body {
 
 .popup-detail a { color: var(--accent); }
 
-.popup-osm {
-  margin-top: 10px;
+/* OSM edit icon — positioned at bottom-right of the popup card.
+   Tooltip revealed on :hover (desktop) or .visible class (mobile tap toggle). */
+.popup-osm-wrap {
+  position: relative;
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
   border-top: 1px solid var(--border);
-  padding-top: 8px;
+  padding-top: 6px;
 }
 
-.popup-osm summary {
-  font-size: 11px;
+.popup-osm-btn {
+  background: none;
+  border: none;
   color: var(--text-dim);
   cursor: pointer;
-  list-style: none;
-  user-select: none;
+  padding: 2px;
+  opacity: 0.4;
+  transition: opacity 0.15s;
+  line-height: 0;
 }
 
-.popup-osm summary::-webkit-details-marker { display: none; }
+.popup-osm-btn:hover { opacity: 0.9; }
 
-.popup-osm[open] summary { color: var(--text); }
+.popup-osm-btn svg {
+  width: 13px;
+  height: 13px;
+  stroke: currentColor;
+}
 
-.popup-osm p {
+.popup-osm-tooltip {
+  display: none;
+  position: absolute;
+  bottom: 100%;  /* sits flush against the button top — keeps wrap :hover active */
+  right: 0;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 8px 10px;
   font-size: 11px;
   color: var(--text-dim);
-  margin: 6px 0;
-  line-height: 1.5;
+  line-height: 1.55;
+  width: 210px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.45);
+  pointer-events: none;
 }
 
-.popup-osm a {
-  font-size: 11px;
+.popup-osm-tooltip a {
   color: var(--accent);
+  pointer-events: auto;
+  display: inline;
+}
+
+/* Desktop: show tooltip on hover of the entire wrap (includes button + tooltip) */
+.popup-osm-wrap:hover .popup-osm-tooltip {
+  display: block;
+  pointer-events: auto;
+}
+
+/* Mobile: show tooltip when .visible toggled by JS click handler */
+.popup-osm-tooltip.visible {
+  display: block;
+  pointer-events: auto;
 }
 
 
@@ -408,38 +473,22 @@ body {
 }
 .leaflet-control-attribution a { color: var(--text-dim) !important; }
 
-/* Layer switcher */
-.leaflet-control-layers {
-  background: var(--surface) !important;
-  border: 1px solid var(--border) !important;
-  border-radius: var(--radius) !important;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.5) !important;
-  color: var(--text) !important;
+/* Marker cluster — dark background, acid-yellow count, matching app palette */
+.unchained-cluster {
+  background: var(--surface);
+  border: 2px solid var(--accent);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent);
+  box-shadow: 0 0 0 4px rgba(232,245,66,0.18);
 }
 
-.leaflet-control-layers-toggle {
-  background-color: var(--surface) !important;
-  width: 30px !important;
-  height: 30px !important;
-}
-
-.leaflet-control-layers-expanded {
-  padding: 8px 12px !important;
-  font-family: var(--font-body) !important;
-  font-size: 12px !important;
-}
-
-.leaflet-control-layers label {
-  display: flex !important;
-  align-items: center !important;
-  gap: 6px !important;
-  padding: 3px 0 !important;
-  color: var(--text-dim) !important;
-  cursor: pointer !important;
-  transition: color 0.15s !important;
-}
-
-.leaflet-control-layers label:hover { color: var(--text) !important; }
+.unchained-cluster span { line-height: 1; }
 
 /* Zoom controls */
 .leaflet-bar {

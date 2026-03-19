@@ -104,21 +104,52 @@ function applyFilter() {
   state.results = state.category === "all"
     ? state.allResults
     : state.allResults.filter(b => b.category === state.category);
-  renderResults(state.results);
   renderMarkers(state.results);
+  updateVisibleList(); // show only businesses within the current viewport
+}
+
+// Filter state.results to the current map bounds and render the sidebar list.
+// Keeps businesses sorted by distance from the search/location centre point.
+function updateVisibleList() {
+  const bounds  = map.getBounds();
+  const visible = state.results.filter(biz => bounds.contains(L.latLng(biz.lat, biz.lon)));
+
+  if (state.lat && state.lon) {
+    visible.sort((a, b) =>
+      distanceTo(state.lat, state.lon, a.lat, a.lon) -
+      distanceTo(state.lat, state.lon, b.lat, b.lon)
+    );
+  }
+
+  // Distinguish "panned away from results" from "genuinely no results here"
+  const hiddenByBounds = state.results.length > 0 && visible.length === 0;
+  renderResults(visible, hiddenByBounds);
 }
 
 // ── Results list ──────────────────────────────────────────────────────────────
-function renderResults(businesses) {
+function renderResults(businesses, hiddenByBounds = false) {
   resultsCount.textContent = businesses.length;
   resultsList.innerHTML = "";
 
   if (businesses.length === 0) {
-    resultsList.innerHTML = `
-      <li class="results-empty">
-        <strong>NOTHING FOUND</strong>
-        Try a larger radius or a different category.
-      </li>`;
+    if (hiddenByBounds) {
+      // Results exist but none are inside the current viewport
+      resultsList.innerHTML = `
+        <li class="results-empty">
+          <span>No businesses in view — pan the map or click <em>Search this area</em>.</span>
+        </li>`;
+    } else {
+      // No independent businesses found in this area at all
+      resultsList.innerHTML = `
+        <li class="results-empty">
+          <strong>NOTHING FOUND</strong>
+          <span>No independent businesses in this area.</span>
+          <span class="results-empty-cta">Know one that's missing?<br>
+            <a href="https://www.openstreetmap.org" target="_blank" rel="noopener">Add it to OpenStreetMap</a>
+            — free, and anyone can contribute.
+          </span>
+        </li>`;
+    }
     return;
   }
 
@@ -246,7 +277,7 @@ map.on("click", () => {
   locationInput.value = "";
 });
 
-// Map pan/zoom — auto-search if cached, otherwise reveal "Search this area" button
+// Map pan/zoom — auto-search if cached, otherwise update visible list + reveal button
 map.on("moveend", () => {
   if (Date.now() < suppressMoveSearchUntil) return;
   if (!state.lat) return;   // app not yet initialised
@@ -258,8 +289,9 @@ map.on("moveend", () => {
   const lb = map.getBounds();
   const bounds = { south: lb.getSouth(), west: lb.getWest(), north: lb.getNorth(), east: lb.getEast() };
   if (hasCached(bounds)) {
-    search();
+    search(); // re-search from cache; applyFilter → updateVisibleList handles the list
   } else {
+    updateVisibleList(); // filter existing results to the new viewport without re-fetching
     searchAreaBtn.classList.remove("hidden");
   }
 });
